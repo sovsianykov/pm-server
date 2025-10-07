@@ -8,6 +8,10 @@ import { User } from './user/user.model';
 import { RolesModule } from './roles/roles.module';
 import { Role } from './roles/roles.model';
 import { UserRoles } from './roles/user-roles.model';
+import { AuthService } from './auth/auth.service';
+import { AuthController } from './auth/auth.controller';
+import { AuthModule } from './auth/auth.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -27,7 +31,10 @@ import { UserRoles } from './roles/user-roles.model';
     }),
     UserModule,
     RolesModule,
+    AuthModule,
+    JwtModule,
   ],
-  controllers: [AppController],
+  controllers: [AppController, AuthController],
+  providers: [AuthService],
 })
 export class AppModule {}
