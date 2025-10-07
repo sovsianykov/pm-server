@@ -10,13 +10,7 @@ import { ConfigModule } from '@nestjs/config';
   imports: [
     UserModule,
     ConfigModule,
-    JwtModule.register({
-      global: true,
-      secret: `${process.env.TOKEN_SECRET}` || 'SECRET',
-      signOptions: {
-        expiresIn: '24h',
-      },
-    }),
+    JwtModule.register({}),
   ],
   controllers: [AuthController],
   providers: [AuthService],

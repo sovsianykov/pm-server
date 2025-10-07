@@ -3,7 +3,6 @@ import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
 import { CreateUserDto } from './dto/create-user-dto';
 import { RolesService } from '../roles/roles.service';
-import { UserRoles } from '../roles/user-roles.model';
 
 @Injectable()
 export class UserService {
@@ -23,7 +22,7 @@ export class UserService {
     }
     const newUser = await this.userRepository.create(dto);
     await newUser.$set('roles', role.id);
-
+    newUser.roles = [role];
     return newUser;
   }
 
