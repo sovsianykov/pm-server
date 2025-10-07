@@ -5,18 +5,15 @@ import { CreateUserDto } from '../user/dto/create-user-dto';
 import { HttpException } from '@nestjs/common';
 import bcrypt from 'bcryptjs';
 import { User } from '../user/user.model';
-import * as process from 'node:process';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private  userService: UserService,
+    private userService: UserService,
     private jwtService: JwtService,
   ) {}
 
-  async login(userDto: CreateUserDto) {
-
-  }
+  async login(userDto: CreateUserDto) {}
 
   async register(userDto: CreateUserDto) {
     const candidate = await this.userService.getUserByEmail(userDto.email);
@@ -30,14 +27,14 @@ export class AuthService {
       ...userDto,
       password: hashPassword,
     });
-
     return this.generateToken(user);
   }
 
   generateToken(user: User) {
     const payload = { email: user.email, roles: user.roles };
+    const accessToken = this.jwtService.sign(payload);
     return {
-      token: this.jwtService.sign(payload),
+      token: accessToken,
     };
   }
 }

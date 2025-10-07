@@ -6,7 +6,7 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const config = new DocumentBuilder()
-    .setTitle('Project Manager Server')
+    .setTitle('Next js Server')
     .setDescription(' Server description')
     .setVersion('1.0')
     .addTag('created by Ovsianykov Serhii')
