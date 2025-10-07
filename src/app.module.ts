@@ -2,10 +2,12 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { UserService } from './user/user.service';
 import { UserModule } from './user/user.module';
 import * as process from 'node:process';
 import { User } from './user/user.model';
+import { RolesModule } from './roles/roles.module';
+import { Role } from './roles/roles.model';
+import { UserRoles } from './roles/user-roles.model';
 
 @Module({
   imports: [
@@ -20,10 +22,11 @@ import { User } from './user/user.model';
       username: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      models: [User],
+      models: [User, Role, UserRoles],
       autoLoadModels: true,
     }),
     UserModule,
+    RolesModule,
   ],
   controllers: [AppController],
 })

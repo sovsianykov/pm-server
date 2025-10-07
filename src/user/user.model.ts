@@ -1,4 +1,7 @@
-import { Column, DataType, Model, Table } from 'sequelize-typescript';
+import { BelongsToMany, Column, DataType, Model, Table } from 'sequelize-typescript';
+import { ApiProperty } from '@nestjs/swagger';
+import { Role } from '../roles/roles.model';
+import { UserRoles } from '../roles/user-roles.model';
 
 interface UserCreationAttribute {
   firstName: string;
@@ -9,18 +12,23 @@ interface UserCreationAttribute {
 
 @Table({ tableName: 'users' })
 export class User extends Model<User, UserCreationAttribute> {
+  @ApiProperty({ example: 'John', description: 'name' })
   @Column({ type: DataType.STRING(255), unique: false, allowNull: false })
   firstName: string;
 
+  @ApiProperty({ example: 'Doe', description: 'last name' })
   @Column({ type: DataType.STRING(255), unique: false, allowNull: false })
   lastName: string;
 
+  @ApiProperty({ example: 'Doe@gmail.com', description: 'email' })
   @Column({ type: DataType.STRING(255), unique: true, allowNull: false })
   email: string;
 
+  @ApiProperty({ example: '123123', description: 'password' })
   @Column({ type: DataType.STRING(255), unique: false, allowNull: false })
   password: string;
 
+  @ApiProperty({ example: 'js middle', description: 'qualification' })
   @Column({
     type: DataType.STRING(255),
     unique: false,
@@ -29,6 +37,10 @@ export class User extends Model<User, UserCreationAttribute> {
   })
   qualification: string;
 
+  @ApiProperty({ example: 'true', description: ' is active' })
   @Column({ defaultValue: true })
   isActive: boolean;
+
+@BelongsToMany(() => Role, () => UserRoles)
+  users: Role[];
 }
