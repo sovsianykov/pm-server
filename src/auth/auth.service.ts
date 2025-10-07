@@ -52,7 +52,7 @@ export class AuthService {
     const user = await this.userService.getUserByEmail(userDto.email);
 
     console.log('user', user);
-    console.log('user.password:', user?.password);
+    console.log('userDto.password:', userDto.password);
     console.log('user.dataValues.password:', user?.dataValues.password);
 
     if (!user || !user.password) {
