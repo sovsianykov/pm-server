@@ -42,5 +42,5 @@ export class User extends Model<User, UserCreationAttribute> {
   isActive: boolean;
 
 @BelongsToMany(() => Role, () => UserRoles)
-  users: Role[];
+  roles: Role[];
 }

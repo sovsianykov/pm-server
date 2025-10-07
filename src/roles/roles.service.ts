@@ -5,7 +5,6 @@ import { Role } from './roles.model';
 
 @Injectable()
 export class RolesService {
-
   constructor(@InjectModel(Role) private roleRepository: typeof Role) {}
 
   async createRole(dto: CreateRoleDto) {
@@ -15,5 +14,4 @@ export class RolesService {
   async getRoleByValue(value: string) {
     return await this.roleRepository.findOne({ where: { value } });
   }
-
 }
