@@ -12,6 +12,9 @@ import { AuthService } from './auth/auth.service';
 import { AuthController } from './auth/auth.controller';
 import { AuthModule } from './auth/auth.module';
 import { JwtModule } from '@nestjs/jwt';
+import { WorkHoursController } from './work-hours/work-hours.controller';
+import { WorkHoursModule } from './work-hours/work-hours.module';
+import { WorkHours } from './work-hours/work-hours.model';
 
 @Module({
   imports: [
@@ -26,15 +29,16 @@ import { JwtModule } from '@nestjs/jwt';
       username: process.env.MYSQL_USER,
       password: process.env.MYSQL_PASSWORD,
       database: process.env.MYSQL_DATABASE,
-      models: [User, Role, UserRoles],
+      models: [User, Role, UserRoles, WorkHours],
       autoLoadModels: true,
     }),
     UserModule,
     RolesModule,
     AuthModule,
     JwtModule,
+    WorkHoursModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController, AuthController, WorkHoursController],
   providers: [AuthService],
 })
 export class AppModule {}

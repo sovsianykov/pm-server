@@ -1,13 +1,14 @@
 import {
   BelongsToMany,
   Column,
-  DataType,
+  DataType, HasMany,
   Model,
   Table,
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
 import { Role } from '../roles/roles.model';
 import { UserRoles } from '../roles/user-roles.model';
+import { WorkHours } from '../work-hours/work-hours.model';
 
 interface UserCreationAttribute {
   firstName: string;
@@ -45,8 +46,12 @@ export class User extends Model<User, UserCreationAttribute> {
 
   @ApiProperty({ example: 'true', description: ' is active' })
   @Column({ defaultValue: true })
-  declare isActive: boolean;
+  isActive: boolean;
 
   @BelongsToMany(() => Role, () => UserRoles)
   roles: Role[];
+
+  @HasMany(() => WorkHours)
+  workHours: WorkHours[];
 }
+
