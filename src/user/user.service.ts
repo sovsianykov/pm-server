@@ -23,6 +23,7 @@ export class UserService {
     const newUser = await this.userRepository.create(dto);
     await newUser.$set('roles', role.id);
     newUser.roles = [role];
+    console.log('Created user', newUser);
     return newUser;
   }
 

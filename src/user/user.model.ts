@@ -4,7 +4,8 @@ import {
   Column,
   DataType,
   HasMany,
-  Model, PrimaryKey,
+  Model,
+  PrimaryKey,
   Table,
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
