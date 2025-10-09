@@ -5,15 +5,17 @@ import {
   Delete,
   Param,
   Body,
-  Query,
+  Query, UseGuards,
 } from '@nestjs/common';
 import { WorkHoursService } from './work-hours.service';
+import { JwtAuthGuard } from '../auth/jwt.auth.guard';
 
 @Controller('/api/work-hours')
 export class WorkHoursController {
   constructor(private readonly workHoursService: WorkHoursService) {}
 
   @Post()
+  @UseGuards(JwtAuthGuard)
   async createOrUpdate(
     @Body('email') email: string,
     @Body('date') date: string,
@@ -29,6 +31,7 @@ export class WorkHoursController {
   }
 
   @Get('/:email')
+  @UseGuards(JwtAuthGuard)
   async getByUserAndMonth(
     @Param('email') email: string,
     @Query('year') year: number,
@@ -36,7 +39,7 @@ export class WorkHoursController {
   ) {
     return this.workHoursService.getByUserAndMonth(email, year, month);
   }
-
+  @UseGuards(JwtAuthGuard)
   @Delete(':id')
   async delete(@Param('id') id: number) {
     return this.workHoursService.deleteRecord(id);

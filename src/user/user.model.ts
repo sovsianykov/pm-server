@@ -1,8 +1,10 @@
 import {
+  AutoIncrement,
   BelongsToMany,
   Column,
-  DataType, HasMany,
-  Model,
+  DataType,
+  HasMany,
+  Model, PrimaryKey,
   Table,
 } from 'sequelize-typescript';
 import { ApiProperty } from '@nestjs/swagger';
@@ -19,6 +21,17 @@ interface UserCreationAttribute {
 
 @Table({ tableName: 'users' })
 export class User extends Model<User, UserCreationAttribute> {
+  @ApiProperty({ example: 1, description: 'id' })
+  @PrimaryKey
+  @AutoIncrement
+  @Column({
+    type: DataType.INTEGER,
+    unique: true,
+    allowNull: false,
+    autoIncrement: true,
+  })
+  declare id: number;
+
   @ApiProperty({ example: 'John', description: 'name' })
   @Column({ type: DataType.STRING(255), unique: false, allowNull: false })
   declare firstName: string;
@@ -54,4 +67,3 @@ export class User extends Model<User, UserCreationAttribute> {
   @HasMany(() => WorkHours)
   workHours: WorkHours[];
 }
-

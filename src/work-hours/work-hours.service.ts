@@ -8,7 +8,7 @@ import { Op } from 'sequelize';
 export class WorkHoursService {
   constructor(
     @InjectModel(WorkHours)
-    private readonly workHoursModel: typeof WorkHours,
+    private readonly userRepository: typeof WorkHours,
 
     @InjectModel(User)
     private readonly userModel: typeof User,
@@ -19,15 +19,17 @@ export class WorkHoursService {
     hoursWorked: number,
     status: string = 'WORK',
   ): Promise<WorkHours> {
-    const user = await this.userModel.findOne({
+    const user = await this.userRepository.findOne({
       where: { email },
     });
 
     if (!user) {
-      throw new NotFoundException(`User with email "${email}" not found`);
+      throw new NotFoundException(
+        `User with email "${email}" not found in users table`,
+      );
     }
     const [record, created]: [WorkHours, boolean] =
-      await this.workHoursModel.findOrCreate({
+      await this.userRepository.findOrCreate({
         where: { email, date },
         defaults: {
           email,
@@ -51,7 +53,7 @@ export class WorkHoursService {
     const startDate = `${year}-${String(month).padStart(2, '0')}-01`;
     const endDate = `${year}-${String(month).padStart(2, '0')}-31`;
 
-    return this.workHoursModel.findAll({
+    return this.userRepository.findAll({
       where: {
         email,
         date: { [Op.between]: [startDate, endDate] },
@@ -60,7 +62,7 @@ export class WorkHoursService {
     });
   }
   async deleteRecord(id: number): Promise<{ deleted: boolean }> {
-    const record: WorkHours | null = await this.workHoursModel.findByPk(id);
+    const record: WorkHours | null = await this.userRepository.findByPk(id);
     if (!record) {
       throw new NotFoundException('Запись не найдена');
     }

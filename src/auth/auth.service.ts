@@ -9,6 +9,13 @@ import { JwtService } from '@nestjs/jwt';
 import { CreateUserDto } from '../user/dto/create-user-dto';
 import bcrypt from 'bcryptjs';
 import { User } from '../user/user.model';
+import { Role } from '../roles/roles.model';
+
+export interface JwtPayload {
+  id: number;
+  email: string;
+  roles: Role[];
+}
 
 @Injectable()
 export class AuthService {
@@ -39,7 +46,11 @@ export class AuthService {
   }
 
   private async generateToken(user: User) {
-    const payload = { email: user.email, roles: user.roles };
+    const payload: JwtPayload = {
+      id: user.id,
+      email: user.email,
+      roles: user.roles,
+    };
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_SECRET,
       expiresIn: '60m',
@@ -50,10 +61,6 @@ export class AuthService {
 
   private async validateUser(userDto: CreateUserDto): Promise<User> {
     const user = await this.userService.getUserByEmail(userDto.email);
-
-    console.log('user', user);
-    console.log('userDto.password:', userDto.password);
-    console.log('user.dataValues.password:', user?.dataValues.password);
 
     if (!user || !user.password) {
       throw new UnauthorizedException({ message: 'Invalid email or password' });
