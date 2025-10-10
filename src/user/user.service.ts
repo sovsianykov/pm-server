@@ -33,4 +33,13 @@ export class UserService {
       include: { all: true },
     });
   }
+
+  async getUserById(id: number) {
+    return this.userRepository.findByPk(id, { include: { all: true } });
+  }
+
+  async updateUser(id: number, data: Partial<User>) {
+    await this.userRepository.update(data, { where: { id } });
+    return this.getUserById(id);
+  }
 }

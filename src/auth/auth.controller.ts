@@ -17,4 +17,14 @@ export class AuthController {
   register(@Body() userDto: CreateUserDto) {
     return this.authService.register(userDto);
   }
+
+  @Post('/refresh')
+  refresh(@Body('refreshToken') refreshToken: string) {
+    return this.authService.refreshTokens(refreshToken);
+  }
+
+  @Post('/logout')
+  logout(@Body('refreshToken') refreshToken: string) {
+    return this.authService.logout(refreshToken);
+  }
 }
