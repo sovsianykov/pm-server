@@ -47,21 +47,7 @@ export class AuthService {
     const tokens = await this.generateTokens(user);
 
     await this.saveRefreshToken(user.id, tokens.refreshToken);
-    return { user, ...tokens };
-  }
-
-  private async generateToken(user: User) {
-    const payload: JwtPayload = {
-      id: user.id,
-      email: user.email,
-      roles: user.roles,
-    };
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: '360m',
-    });
-
-    return { accessToken };
+    return { user, ...tokens, message: 'user created successfully' };
   }
 
   private async validateUser(userDto: CreateUserDto): Promise<User> {
@@ -87,20 +73,20 @@ export class AuthService {
     await this.userService.updateUser(userId, { refreshToken });
   }
 
-  private async getStoredRefreshToken(userId: number) {
-    const user = await this.userService.getUserById(userId);
-    if (!user) {
-      throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-    }
-    return user.refreshToken;
-  }
+  // private async getStoredRefreshToken(userId: number) {
+  //   const user = await this.userService.getUserById(userId);
+  //   if (!user) {
+  //     throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+  //   }
+  //   return user.refreshToken;
+  // }
 
   private async generateTokens(user: User) {
     const payload = { id: user.id, email: user.email, roles: user.roles };
 
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_SECRET,
-      expiresIn: '15m',
+      expiresIn: '30m',
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {
