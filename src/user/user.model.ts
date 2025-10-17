@@ -61,7 +61,6 @@ export class User extends Model<User, UserCreationAttribute> {
   @Column({ defaultValue: true })
   isActive: boolean;
 
-  /** ✅ refreshToken */
   @ApiProperty({
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX...',
     description: 'Refresh Token',

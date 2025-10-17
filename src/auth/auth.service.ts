@@ -10,6 +10,7 @@ import { CreateUserDto } from '../user/dto/create-user-dto';
 import bcrypt from 'bcryptjs';
 import { User } from '../user/user.model';
 import { Role } from '../roles/roles.model';
+import { LoginUserDto } from '../user/dto/login-user-dto';
 
 export interface JwtPayload {
   id: number;
@@ -24,7 +25,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(userDto: CreateUserDto) {
+  async login(userDto: LoginUserDto) {
     const user = await this.validateUser(userDto);
     const tokens = await this.generateTokens(user);
 
@@ -50,11 +51,17 @@ export class AuthService {
     return { user, ...tokens, message: 'user created successfully' };
   }
 
-  private async validateUser(userDto: CreateUserDto): Promise<User> {
+  private async validateUser(userDto: LoginUserDto): Promise<User> {
     const user = await this.userService.getUserByEmail(userDto.email);
 
+    await user!.reload({ include: [Role] });
+
+    console.log(user);
+
     if (!user || !user.password) {
-      throw new UnauthorizedException({ message: 'Invalid email or password' });
+      throw new UnauthorizedException({
+        message: 'Invalid email or password. Message from user validation',
+      });
     }
 
     const passwordEqual = await bcrypt.compare(
@@ -73,15 +80,10 @@ export class AuthService {
     await this.userService.updateUser(userId, { refreshToken });
   }
 
-  // private async getStoredRefreshToken(userId: number) {
-  //   const user = await this.userService.getUserById(userId);
-  //   if (!user) {
-  //     throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
-  //   }
-  //   return user.refreshToken;
-  // }
-
   private async generateTokens(user: User) {
+
+
+
     const payload = { id: user.id, email: user.email, roles: user.roles };
 
     const accessToken = await this.jwtService.signAsync(payload, {

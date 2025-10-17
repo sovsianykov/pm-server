@@ -3,6 +3,7 @@ import { AuthService } from './auth.service';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateUserDto } from '../user/dto/create-user-dto';
 import { JwtAuthGuard } from './jwt.auth.guard';
+import { LoginUserDto } from '../user/dto/login-user-dto';
 
 @Controller('/api/users')
 @ApiTags('Authorization')
@@ -10,7 +11,7 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('/login')
-  login(@Body() userDto: CreateUserDto) {
+  login(@Body() userDto: LoginUserDto) {
     return this.authService.login(userDto);
   }
 
@@ -21,7 +22,6 @@ export class AuthController {
 
   @Post('/refresh')
   refresh(@Body('refreshToken') refreshToken: string) {
-
     return this.authService.refreshTokens(refreshToken);
   }
   @UseGuards(JwtAuthGuard)
