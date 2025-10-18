@@ -1,9 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { RolesService } from './roles/roles.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  const rolesService = app.get(RolesService);
+  await rolesService.seedRoles();
 
   const config = new DocumentBuilder()
     .setTitle('Next js Server')
