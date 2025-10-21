@@ -1,8 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { PartialType } from '@nestjs/mapped-types';
 import { IsEmail, IsNotEmpty, IsString, Length } from 'class-validator';
-import { RoleValue } from '../../roles/dto/add-role.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { CreateUserDto } from './create-user-dto';
 
-export class CreateUserDto {
+
+export class UpdateUserDto extends PartialType(CreateUserDto) {
   @IsString()
   @IsEmail({}, { message: 'Please enter an email address' })
   @ApiProperty({ example: 'Doe@gmail.com', description: 'email' })
@@ -22,9 +24,4 @@ export class CreateUserDto {
   @IsNotEmpty()
   @ApiProperty({ example: 'Doe', description: 'last name' })
   readonly lastName: string;
-
-  @IsString()
-  @IsNotEmpty()
-  @ApiProperty({ example: 'Doe', description: 'last name' })
-  readonly role: RoleValue;
 }

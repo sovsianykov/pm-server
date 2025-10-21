@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user-dto';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -28,6 +36,16 @@ export class UserController {
   @Get()
   getAll() {
     return this.userService.getUsers();
+  }
+
+  @ApiOperation({ summary: 'Fetch a list of users' })
+  @ApiResponse({ status: 200, type: User })
+  @UseGuards(JwtAuthGuard)
+  @Roles('ADMIN')
+  @UseGuards(RolesGuard)
+  @Get('/:id')
+  getUserById(@Param('id', ParseIntPipe) id: string) {
+    return this.userService.getUserById(+id);
   }
 
   @ApiOperation({ summary: 'Give a role ' })

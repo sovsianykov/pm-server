@@ -18,7 +18,7 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDto) {
-    const role = await this.rolesService.getRoleByValue('ADMIN');
+    const role = await this.rolesService.getRoleByValue(dto.role);
     if (!role) {
       throw new Error('Role USER not found');
     }
@@ -44,11 +44,12 @@ export class UserService {
     return user;
   }
 
-
   async getUserById(id: number) {
-    return await this.userRepository.findByPk(id, { include: [Role] });
+    return await this.userRepository.findOne({
+      where: { id },
+      include: [Role],
+    });
   }
-
 
   async updateUser(id: number, data: Partial<User>) {
     await this.userRepository.update(data, { where: { id } });
@@ -65,5 +66,17 @@ export class UserService {
     }
 
     throw new HttpException('User or Role not found', HttpStatus.NOT_FOUND);
+  }
+
+  async deleteUser(id: number) {
+    const user = await this.userRepository.findByPk(id);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.userRepository.destroy({ where: { id } });
+
+    return { message: 'User deleted successfully' };
   }
 }

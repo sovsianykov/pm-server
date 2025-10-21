@@ -56,8 +56,6 @@ export class AuthService {
 
     await user!.reload({ include: [Role] });
 
-    console.log(user);
-
     if (!user || !user.password) {
       throw new UnauthorizedException({
         message: 'Invalid email or password. Message from user validation',
@@ -81,14 +79,11 @@ export class AuthService {
   }
 
   private async generateTokens(user: User) {
-
-
-
     const payload = { id: user.id, email: user.email, roles: user.roles };
 
     const accessToken = await this.jwtService.signAsync(payload, {
       secret: process.env.JWT_SECRET,
-      expiresIn: '30m',
+      expiresIn: '60m',
     });
 
     const refreshToken = await this.jwtService.signAsync(payload, {
@@ -108,7 +103,7 @@ export class AuthService {
         },
       );
 
-      const user = await this.userService.getUserById(payload.id);
+      const user = await this.userService.getUserByEmail(payload.email);
       if (!user || user.refreshToken !== refreshToken) {
         throw new UnauthorizedException({ message: 'Invalid refresh token' });
       }
@@ -147,5 +142,17 @@ export class AuthService {
         message: 'Invalid or expired refresh token',
       });
     }
+  }
+
+  async deleteUser(userId: number) {
+    const user = await this.userService.getUserById(userId);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.userService.deleteUser(user.id);
+
+    return { message: 'User deleted successfully' };
   }
 }
