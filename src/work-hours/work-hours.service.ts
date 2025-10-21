@@ -16,10 +16,10 @@ export class WorkHoursService {
   async createOrUpdate(
     email: string,
     date: string,
-    hoursWorked: number,
+    trackedHours: number,
     status: string = 'WORK',
   ): Promise<WorkHours> {
-    const user = await this.userRepository.findOne({
+    const user = await this.userModel.findOne({
       where: { email },
     });
 
@@ -34,14 +34,14 @@ export class WorkHoursService {
         defaults: {
           email,
           date,
-          hoursWorked,
+          trackedHours,
           status,
-          userForeignId: user.id as string,
+          userForeignId: user.id as unknown as string,
         } as unknown as WorkHours,
       });
 
     if (!created) {
-      record.hoursWorked = hoursWorked;
+      record.trackedHours = trackedHours;
       record.status = status;
       await record.save();
     }

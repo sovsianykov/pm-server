@@ -10,6 +10,7 @@ import { CreateUserDto } from '../user/dto/create-user-dto';
 import bcrypt from 'bcryptjs';
 import { User } from '../user/user.model';
 import { Role } from '../roles/roles.model';
+import { LoginUserDto } from '../user/dto/login-user-dto';
 
 export interface JwtPayload {
   id: number;
@@ -24,10 +25,12 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async login(userDto: CreateUserDto) {
+  async login(userDto: LoginUserDto) {
     const user = await this.validateUser(userDto);
-    const token = await this.generateToken(user);
-    return { user, ...token };
+    const tokens = await this.generateTokens(user);
+
+    await this.saveRefreshToken(user.id, tokens.refreshToken);
+    return { user, ...tokens };
   }
 
   async register(userDto: CreateUserDto) {
@@ -42,29 +45,21 @@ export class AuthService {
       ...userDto,
       password: hashPassword,
     });
-    const token = await this.generateToken(user);
-    return { user, ...token };
+    const tokens = await this.generateTokens(user);
+
+    await this.saveRefreshToken(user.id, tokens.refreshToken);
+    return { user, ...tokens, message: 'user created successfully' };
   }
 
-  private async generateToken(user: User) {
-    const payload: JwtPayload = {
-      id: user.id,
-      email: user.email,
-      roles: user.roles,
-    };
-    const accessToken = await this.jwtService.signAsync(payload, {
-      secret: process.env.JWT_SECRET,
-      expiresIn: '60m',
-    });
-
-    return { accessToken };
-  }
-
-  private async validateUser(userDto: CreateUserDto): Promise<User> {
+  private async validateUser(userDto: LoginUserDto): Promise<User> {
     const user = await this.userService.getUserByEmail(userDto.email);
 
+    await user!.reload({ include: [Role] });
+
     if (!user || !user.password) {
-      throw new UnauthorizedException({ message: 'Invalid email or password' });
+      throw new UnauthorizedException({
+        message: 'Invalid email or password. Message from user validation',
+      });
     }
 
     const passwordEqual = await bcrypt.compare(
@@ -77,5 +72,87 @@ export class AuthService {
     }
 
     return user;
+  }
+
+  private async saveRefreshToken(userId: number, refreshToken: string) {
+    await this.userService.updateUser(userId, { refreshToken });
+  }
+
+  private async generateTokens(user: User) {
+    const payload = { id: user.id, email: user.email, roles: user.roles };
+
+    const accessToken = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_SECRET,
+      expiresIn: '60m',
+    });
+
+    const refreshToken = await this.jwtService.signAsync(payload, {
+      secret: process.env.JWT_REFRESH_SECRET,
+      expiresIn: '7d',
+    });
+
+    return { accessToken, refreshToken };
+  }
+
+  async refreshTokens(refreshToken: string) {
+    try {
+      const payload: JwtPayload = await this.jwtService.verifyAsync(
+        refreshToken,
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+        },
+      );
+
+      const user = await this.userService.getUserByEmail(payload.email);
+      if (!user || user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException({ message: 'Invalid refresh token' });
+      }
+
+      const tokens = await this.generateTokens(user);
+      await this.userService.updateUser(user.id, {
+        refreshToken: tokens.refreshToken,
+      });
+
+      return { user, ...tokens };
+    } catch {
+      throw new UnauthorizedException({
+        message: 'Refresh token expired or invalid',
+      });
+    }
+  }
+
+  async logout(refreshToken: string) {
+    try {
+      const payload: JwtPayload = await this.jwtService.verifyAsync(
+        refreshToken,
+        {
+          secret: process.env.JWT_REFRESH_SECRET,
+        },
+      );
+
+      const user = await this.userService.getUserById(payload.id);
+      if (!user || user.refreshToken !== refreshToken) {
+        throw new UnauthorizedException({ message: 'Invalid refresh token' });
+      }
+
+      await this.userService.updateUser(user.id, { refreshToken: null });
+      return { message: 'Logged out successfully' };
+    } catch {
+      throw new UnauthorizedException({
+        message: 'Invalid or expired refresh token',
+      });
+    }
+  }
+
+  async deleteUser(userId: number) {
+    const user = await this.userService.getUserById(userId);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.userService.deleteUser(user.id);
+
+    return { message: 'User deleted successfully' };
   }
 }

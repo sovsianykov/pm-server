@@ -5,7 +5,8 @@ import {
   Delete,
   Param,
   Body,
-  Query, UseGuards,
+  Query,
+  UseGuards,
 } from '@nestjs/common';
 import { WorkHoursService } from './work-hours.service';
 import { JwtAuthGuard } from '../auth/jwt.auth.guard';
@@ -19,13 +20,13 @@ export class WorkHoursController {
   async createOrUpdate(
     @Body('email') email: string,
     @Body('date') date: string,
-    @Body('hoursWorked') hoursWorked: number,
+    @Body('trackedHours') trackedHours: number,
     @Body('status') status: string,
   ) {
     return this.workHoursService.createOrUpdate(
       email,
       date,
-      hoursWorked,
+      trackedHours,
       status,
     );
   }

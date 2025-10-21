@@ -34,11 +34,11 @@ export class User extends Model<User, UserCreationAttribute> {
   declare id: number;
 
   @ApiProperty({ example: 'John', description: 'name' })
-  @Column({ type: DataType.STRING(255), unique: false, allowNull: false })
+  @Column({ type: DataType.STRING(255), allowNull: false })
   declare firstName: string;
 
   @ApiProperty({ example: 'Doe', description: 'last name' })
-  @Column({ type: DataType.STRING(255), unique: false, allowNull: false })
+  @Column({ type: DataType.STRING(255), allowNull: false })
   declare lastName: string;
 
   @ApiProperty({ example: 'Doe@gmail.com', description: 'email' })
@@ -46,21 +46,27 @@ export class User extends Model<User, UserCreationAttribute> {
   declare email: string;
 
   @ApiProperty({ example: '123123', description: 'password' })
-  @Column({ type: DataType.STRING(255), unique: false, allowNull: false })
+  @Column({ type: DataType.STRING(255), allowNull: false })
   declare password: string;
 
   @ApiProperty({ example: 'js middle', description: 'qualification' })
   @Column({
     type: DataType.STRING(255),
-    unique: false,
     allowNull: true,
     defaultValue: 'no qualified',
   })
   declare qualification: string;
 
-  @ApiProperty({ example: 'true', description: ' is active' })
+  @ApiProperty({ example: true, description: 'is active' })
   @Column({ defaultValue: true })
   isActive: boolean;
+
+  @ApiProperty({
+    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpX...',
+    description: 'Refresh Token',
+  })
+  @Column({ type: DataType.TEXT, allowNull: true })
+  declare refreshToken: string | null;
 
   @BelongsToMany(() => Role, () => UserRoles)
   roles: Role[];

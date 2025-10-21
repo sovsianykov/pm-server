@@ -14,4 +14,21 @@ export class RolesService {
   async getRoleByValue(value: string) {
     return await this.roleRepository.findOne({ where: { value } });
   }
+
+  async seedRoles() {
+    const roles = [
+      { value: 'USER', description: 'Regular user' },
+      { value: 'ADMIN', description: 'Administrator' },
+      { value: 'MODERATOR', description: 'Moderator' },
+    ];
+
+    for (const roleData of roles) {
+      const roleExists = await this.roleRepository.findOne({
+        where: { value: roleData.value },
+      });
+      if (!roleExists) {
+        await this.roleRepository.create(roleData);
+      }
+    }
+  }
 }

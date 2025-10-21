@@ -20,8 +20,8 @@ export class WorkHours extends Model<WorkHours> {
   @Column({ type: DataType.DATEONLY, allowNull: false })
   date: string; // YYYY-MM-DD
 
-  @Column({ type: DataType.DECIMAL(4, 2), allowNull: false, defaultValue: 0 })
-  hoursWorked: number;
+  @Column({ type: DataType.INTEGER, allowNull: true, defaultValue: 0 })
+  trackedHours: number;
 
   @Column({ type: DataType.STRING, allowNull: false, defaultValue: 'WORK' })
   status: string; // WORK, HOLIDAY, VACATION, SICK

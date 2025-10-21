@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './user.model';
 import { CreateUserDto } from './dto/create-user-dto';
 import { RolesService } from '../roles/roles.service';
+import { AddRoleDto } from '../roles/dto/add-role.dto';
+import { Role } from '../roles/roles.model';
 
 @Injectable()
 export class UserService {
@@ -16,7 +18,7 @@ export class UserService {
   }
 
   async createUser(dto: CreateUserDto) {
-    const role = await this.rolesService.getRoleByValue('USER');
+    const role = await this.rolesService.getRoleByValue(dto.role);
     if (!role) {
       throw new Error('Role USER not found');
     }
@@ -28,9 +30,53 @@ export class UserService {
   }
 
   async getUserByEmail(email: string) {
-    return this.userRepository.findOne({
+    const user = await this.userRepository.findOne({
       where: { email },
-      include: { all: true },
+      include: [
+        {
+          model: Role,
+          through: { attributes: [] },
+        },
+      ],
     });
+
+    console.log('user by email', user);
+    return user;
+  }
+
+  async getUserById(id: number) {
+    return await this.userRepository.findOne({
+      where: { id },
+      include: [Role],
+    });
+  }
+
+  async updateUser(id: number, data: Partial<User>) {
+    await this.userRepository.update(data, { where: { id } });
+    return this.getUserById(id);
+  }
+
+  async addRole(dto: AddRoleDto) {
+    const user = await this.userRepository.findByPk(dto.userId);
+    const role = await this.rolesService.getRoleByValue(dto.value);
+
+    if (role && user) {
+      await user.$add('roles', role.id);
+      return dto;
+    }
+
+    throw new HttpException('User or Role not found', HttpStatus.NOT_FOUND);
+  }
+
+  async deleteUser(id: number) {
+    const user = await this.userRepository.findByPk(id);
+
+    if (!user) {
+      throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+    }
+
+    await this.userRepository.destroy({ where: { id } });
+
+    return { message: 'User deleted successfully' };
   }
 }
